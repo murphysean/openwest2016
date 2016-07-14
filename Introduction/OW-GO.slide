@@ -1,0 +1,195 @@
+# http://godoc.org/golang.org/x/tools/present
+# Present files have the following format. 
+# The first non-blank non-comment line is the title.
+# The subtitle, date, and tags lines are optional.
+Golang Introduction
+OpenWest
+20:19 13 Jul 2016
+Tags: gdg, go, lang, openwest
+
+Sean Murphy
+Software Engineer, DOMO
+murphysean84@gmail.com
+https://www.murphysean.com/
++MurphySean84
+
+* Language
+
+* Packages
+
+Go Programs are made up of packages, and the main package is where programs start running.
+
+.play Packages.go
+
+* Functions
+
+Functions can return mutliple values
+
+	func myFunction(a,b,c int) (int, int int, error){}
+
+* Declarations
+
+:= can shortcut variable declartions inside functions
+
+Constants can take on the type of their context
+
+.play Declarations.go
+
+* Flow Control
+
+* For loop
+
+Go has only one looping construct, the for loop.
+
+You can also use range to iterate over arrays, slices, and maps.
+
+* For loop Examples
+
+.code For.go /^func main/,/^}/
+
+* If Statement
+
+.play If.go
+
+* Switch Statement
+
+.code Switch.go /^func main/,/^}/
+
+* Defer
+
+A defer statement defers the execution of a function until the surrounding function returns.
+
+The deferred call's arguments are evaluated immediately, but the function call is not executed until the surrounding function returns.
+
+.play Defer.go
+
+* Methods and Interfaces
+
+* Structs
+
+A Struct is a collection of fields
+
+.play Struct.go
+
+* Slices
+
+A slice points to an array of values and also includes a length.
+
+You can also slice a slice:
+
+	slicedslice := slice[lo:hi]
+	
+The make function:
+
+	slice := make(type, length, capacity)
+
+The append function:
+
+	slice := append(slice, item)
+	
+* Maps
+
+Make a map: make(map[string]string)
+Literal: map[string]string{"key":"value"}
+Insert/Update: m[key] = elem
+Retrieve: elem = m[key]
+Delete: delete(m, key)
+Test: elem, ok = m[key]
+
+Reading keys that don't exist result in zero values
+
+* Methods and Interfaces
+
+* Methods
+
+Go does not have classes. You can attach methods to structs
+
+	func (v *Vertex) Abs() float64 {}
+
+play Methods.go
+
+* Interfaces
+
+An interfaces is a set of methods
+
+	type Abser interface{
+		Abs() float64
+	}
+	
+Interfaces are satisfied Implicitly. For instance io defines Reader and Writer, if you have a .Read or .Write method you implement one of those.
+
+* Errors
+
+There is a build in error type that implements Stringer (.String())
+
+Functions often return an error value:
+
+	i, err := strconv.Atoi("42")
+	if err != nil {
+    	fmt.Printf("couldn't convert number: %v\n", err)
+	}
+	fmt.Println("Converted integer:", i)
+	
+A nil error denotes success; a non-nil error denotes failure.
+
+* Concurrency
+
+* Goroutines
+
+A goroutine is a lightweight thread managed by Go
+
+	go f(x, y, z)
+	
+* Channels
+
+Channels are a typed conduit through which you can send and receive values with the channel operator, <-.
+
+	ch <- v //Send v to channel ch
+	v := <-ch //Receive from ch, and assign value to v.
+	
+	ch := make(chan int)
+	
+Without a buffer size for a channel sends and recieves will block until the other side is ready.
+
+* Channels Code
+
+.play Channels.go
+
+* Buffered Channels
+
+Channels can be buffered. Provide the buffer length as the second argument to make to initialize a buffered channel:
+
+	ch := make(chan int, 100)
+
+Sends to a buffered channel block only when the buffer is full. Receives block when the buffer is empty.
+
+* Channel Close
+
+A sender can close a channel to signal that no more values will be sent.
+
+	close(ch)
+	
+A reciever can detect if the channel has been closed.
+
+	v, ok := <-ch
+	
+ok will be false if the channel has been closed
+
+* Channel Range
+
+A Loop can be set up to recieve values from a channel
+
+	for i := range ch{}
+	
+The loop will continue until the channel is closed
+
+* Select
+
+A Select statement is much like a switch for async communication
+
+	select{
+		case a := <-cha:
+		case chb <- v:
+		default:
+			//Receiving from a or sending to b would block
+	}

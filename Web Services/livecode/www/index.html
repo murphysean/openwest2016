@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Winning</title>
+<script>
+function get(url, cb){
+	var xhr = new XMLHttpRequest();
+	xhr.open('GET', url);
+	xhr.responseType = 'text';
+	xhr.onload = function(e) {
+		var data = JSON.parse(this.response);
+		cb(data)
+	}
+	xhr.send();
+}
+function post(url, obj, cb){
+	var xhr = new XMLHttpRequest();
+	xhr.open('POST', url);
+	xhr.setRequestHeader("Content-Type", "application/json")
+	xhr.responseType = 'text';
+	xhr.onload = function(e) {
+		var data = JSON.parse(this.response);
+		cb(data)
+	}
+	xhr.send(JSON.stringify(obj));
+}
+function put(url, obj, cb){
+	var xhr = new XMLHttpRequest();
+	xhr.open('PUT', url);
+	xhr.setRequestHeader("Content-Type", "application/json")
+	xhr.responseType = 'text';
+	xhr.onload = function(e) {
+		var data = JSON.parse(this.response);
+		cb(data)
+	}
+	xhr.send(JSON.stringify(obj));
+}
+function del(url, cb){
+	var xhr = new XMLHttpRequest();
+	xhr.open('DELETE', url);
+	xhr.responseType = 'text';
+	xhr.onload = function(e) {
+		var data = JSON.parse(this.response);
+		cb(data)
+	}
+	xhr.send();
+}
+</script>
+<script>
+function submitQuote(){
+	let email = document.querySelector("#email").value;
+	let quote = document.querySelector("#quote").value;
+	let obj = new Object();
+	obj.email = email;
+	obj.quote = quote;
+	post("api/quotes/", obj, function(o){
+		console.log(o)
+	});
+	document.querySelector("#qform").style = "display: none";
+
+	reloadQuotes();
+	return true;
+}
+function reloadQuotes(){
+	get("/api/quotes/", function(o){
+		var qs = document.querySelector("#quotes");
+		while (qs.firstChild) {
+		    qs.removeChild(qs.firstChild);
+		}
+		console.log(o);
+		for(let i = 0; i < o.length; i++){
+			e = document.createElement("p");
+			e.setAttribute("data-email", o[i].email);
+			e.title = o[i].email;
+			e.innerHTML = o[i].quote;
+			e.addEventListener('click',vote.bind(null,o[i].email));
+			qs.appendChild(e);
+		}
+	});
+}
+function vote(email){
+	put("api/vote?email="+email, {email:email}, function(o){
+		console.log(o);
+	});
+}
+</script>
+</head>
+<body>
+	<p>Hello World</p>
+	<form id="qform" onsubmit="event.preventDefault(); submitQuote();">
+		<label for="email">Email</label>
+		<input type="email" id="email" name="email" required><br/>
+		<label for="quote">Quote</label>
+		<input type="text" id="quote" name="quote" required><br/>
+		<input type="submit">
+	</form>
+	<button onclick="reloadQuotes()">Reload</button>
+	<div id="quotes">
+	</div>
+</body>
+</html>
